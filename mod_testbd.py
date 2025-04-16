@@ -16,6 +16,7 @@ def connect_postgresql(connection_params):
         connection_params['host'] = connection_params.pop('hostname')
         connection_params['user'] = connection_params.pop('username')
         connection_params['dbname'] = connection_params.pop('database') 
+        connection_params['connect_timeout'] = 5
         conn = psycopg2.connect(**connection_params)
         # Perform operations
         return "PostgreSQL connection successful!"
