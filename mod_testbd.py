@@ -5,6 +5,7 @@ import mysql.connector
 import ibm_db
 import cx_Oracle
 import pyodbc
+import pymongo  # Added for MongoDB support
 
 app = Flask(__name__)
 CORS(app)
@@ -26,7 +27,6 @@ def connect_postgresql(connection_params):
         return jsonify({'postgresql general error:': str(e)}), 500
     except Exception as e:
         return jsonify({'postgresql unexpected error:': str(e)}), 500
-
     finally:
         if conn is not None:
             try:
@@ -54,26 +54,26 @@ def connect_mysql(connection_params):
                 pass
 
 def connect_db2(connection_params):
-   conn = None
-   try:
-    conn_str = (
-        f"DATABASE={connection_params['database']};"
-        f"HOSTNAME={connection_params['hostname']};"
-        f"PORT={connection_params['port']};"
-        f"PROTOCOL=TCPIP;"
-        f"UID={connection_params['username']};"
-        f"PWD={connection_params['password']};"
-    )
-    conn = ibm_db.connect(conn_str, "", "")
+    conn = None
+    try:
+        conn_str = (
+            f"DATABASE={connection_params['database']};"
+            f"HOSTNAME={connection_params['hostname']};"
+            f"PORT={connection_params['port']};"
+            f"PROTOCOL=TCPIP;"
+            f"UID={connection_params['username']};"
+            f"PWD={connection_params['password']};"
+        )
+        conn = ibm_db.connect(conn_str, "", "")
         # Perform operations
-    return "DB2 connection successful!"
-   except psycopg2.OperationalError as e:
+        return "DB2 connection successful!"
+    except psycopg2.OperationalError as e:
         return jsonify({'DB2 connection failed:': str(e)}), 400
-   except psycopg2.Error as e:
+    except psycopg2.Error as e:
         return jsonify({'DB2 general error:': str(e)}), 500
-   except Exception as e:
+    except Exception as e:
         return jsonify({'DB2 unexpected error:': str(e)}), 500
-   finally:
+    finally:
         if conn is not None:
             try:
                 ibm_db.close(conn)
@@ -119,13 +119,39 @@ def connect_mssql(connection_params):
             except Exception:
                 pass
 
+def connect_mongodb(connection_params):
+    client = None
+    try:
+        client = pymongo.MongoClient(
+            host=connection_params['hostname'],
+            port=int(connection_params['port']),
+            username=connection_params['username'],
+            password=connection_params['password'],
+            authSource=connection_params['database'],
+            serverSelectionTimeoutMS=5000  # 5-second timeout to avoid hanging
+        )
+        client.server_info()  # Forces the connection to be established
+        return "MongoDB connection successful!"
+    except pymongo.errors.ConnectionFailure as e:
+        return jsonify({'MongoDB connection failed:': str(e)}), 400
+    except pymongo.errors.PyMongoError as e:
+        return jsonify({'MongoDB general error:': str(e)}), 500
+    except ValueError as e:
+        return jsonify({'Invalid port number:': str(e)}), 400
+    except Exception as e:
+        return jsonify({'MongoDB unexpected error:': str(e)}), 500
+    finally:
+        if client is not None:
+            client.close()
+
 # Map of database types to functions
 db_functions = {
     'postgresql': connect_postgresql,
     'mysql': connect_mysql,
     'db2': connect_db2,
     'oracle': connect_oracle,
-    'mssql': connect_mssql
+    'mssql': connect_mssql,
+    'mongodb': connect_mongodb  # Added MongoDB support
 }
 
 @app.route('/testdbcon', methods=['POST'])

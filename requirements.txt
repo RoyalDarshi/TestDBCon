@@ -5,3 +5,4 @@ mysql.connector
 ibm_db
 cx_Oracle
 pyodbc
+pymongo
