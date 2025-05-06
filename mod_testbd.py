@@ -2,8 +2,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import psycopg2
 import mysql.connector
-import ibm_db
-import cx_Oracle
+# import ibm_db
 import pyodbc
 import pymongo
 
@@ -49,44 +48,44 @@ def connect_mysql(connection_params):
             except Exception:
                 pass
 
-def connect_db2(connection_params):
-    conn = None
-    try:
-        conn_str = (
-            f"DATABASE={connection_params['database']};"
-            f"HOSTNAME={connection_params['hostname']};"
-            f"PORT={connection_params['port']};"
-            f"PROTOCOL=TCPIP;"
-            f"UID={connection_params['username']};"
-            f"PWD={connection_params['password']};"
-        )
-        conn = ibm_db.connect(conn_str, "", "")
-        return "DB2 connection successful!", 200
-    except Exception as e:
-        return f"DB2 connection failed: {str(e)}", 400
-    finally:
-        if conn is not None:
-            try:
-                ibm_db.close(conn)
-            except Exception:
-                pass
+# def connect_db2(connection_params):
+#     conn = None
+#     try:
+#         conn_str = (
+#             f"DATABASE={connection_params['database']};"
+#             f"HOSTNAME={connection_params['hostname']};"
+#             f"PORT={connection_params['port']};"
+#             f"PROTOCOL=TCPIP;"
+#             f"UID={connection_params['username']};"
+#             f"PWD={connection_params['password']};"
+#         )
+#         conn = ibm_db.connect(conn_str, "", "")
+#         return "DB2 connection successful!", 200
+#     except Exception as e:
+#         return f"DB2 connection failed: {str(e)}", 400
+#     finally:
+#         if conn is not None:
+#             try:
+#                 ibm_db.close(conn)
+#             except Exception:
+#                 pass
 
-def connect_oracle(connection_params):
-    conn = None
-    try:
-        dsn = cx_Oracle.makedsn(connection_params['hostname'], connection_params['port'], service_name=connection_params['database'])
-        conn = cx_Oracle.connect(user=connection_params['username'], password=connection_params['password'], dsn=dsn)
-        return "Oracle connection successful!", 200
-    except cx_Oracle.Error as e:
-        return f"Oracle connection failed: {str(e)}", 400
-    except Exception as e:
-        return f"Oracle unexpected error: {str(e)}", 500
-    finally:
-        if conn is not None:
-            try:
-                conn.close()
-            except Exception:
-                pass
+# def connect_oracle(connection_params):
+#     conn = None
+#     try:
+#         dsn = cx_Oracle.makedsn(connection_params['hostname'], connection_params['port'], service_name=connection_params['database'])
+#         conn = cx_Oracle.connect(user=connection_params['username'], password=connection_params['password'], dsn=dsn)
+#         return "Oracle connection successful!", 200
+#     except cx_Oracle.Error as e:
+#         return f"Oracle connection failed: {str(e)}", 400
+#     except Exception as e:
+#         return f"Oracle unexpected error: {str(e)}", 500
+#     finally:
+#         if conn is not None:
+#             try:
+#                 conn.close()
+#             except Exception:
+#                 pass
 
 def connect_mssql(connection_params):
     conn = None
@@ -140,8 +139,8 @@ def connect_mongodb(connection_params):
 db_functions = {
     'postgresql': connect_postgresql,
     'mysql': connect_mysql,
-    'db2': connect_db2,
-    'oracle': connect_oracle,
+    # 'db2': connect_db2,
+    # 'oracle': connect_oracle,
     'mssql': connect_mssql,
     'mongodb': connect_mongodb
 }

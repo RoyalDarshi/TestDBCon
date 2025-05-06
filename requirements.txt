@@ -3,6 +3,5 @@ flask_cors
 psycopg2-binary
 mysql.connector
 ibm_db
-cx_Oracle
 pyodbc
 pymongo
