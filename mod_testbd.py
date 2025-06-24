@@ -3,7 +3,7 @@ from flask_cors import CORS
 import psycopg2
 import mysql.connector
 # import ibm_db
-import pyodbc
+# import pyodbc
 import pymongo
 
 app = Flask(__name__)
